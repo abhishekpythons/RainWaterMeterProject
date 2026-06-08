@@ -1,24 +1,42 @@
-import RPi.GPIO as gpio
-gpio.setmode(gpio.BCM)
-bottles = [4, 17, 27, 22, 5, 6, 13]
-for bottle in bottles:
-    gpio.setup(bottle, gpio.OUT)
-    gpio.output(bottle, gpio.HIGH)
+import RPi.GPIO as GPIO
 
-class rainwater:
-    def __init__(self, bottle=1):
-        for bottle in bottles:
-            gpio.setup(bottle, gpio.OUT)
-        self.selected_bottle = bottle
-    def change_bottle(self, bottle):
-        self.selected_bottle = bottle
-    def reset(self):
-        for bottle in bottles:
-            gpio.setup(bottle, gpio.OUT)
-            gpio.output(bottle, gpio.HIGH)
-    def update(self):
+GPIO.setmode(GPIO.BCM)
+
+BOTTLE_PINS = [4, 17, 27, 22, 5, 6, 13]
+
+
+class RainwaterMeter:
+    def __init__(self, selected_bottle=1):
+        self.selected_bottle = selected_bottle
+        for pin in BOTTLE_PINS:
+            GPIO.setup(pin, GPIO.OUT)
         self.reset()
-        gpio.output(bottles[self.selected_bottle-1], gpio.LOW)
+
+    def select_bottle(self, bottle_number):
+        if 1 <= bottle_number <= len(BOTTLE_PINS):
+            self.selected_bottle = bottle_number
+        else:
+            raise ValueError(f"Bottle number must be between 1 and {len(BOTTLE_PINS)}")
+
+    def reset(self):
+        for pin in BOTTLE_PINS:
+            GPIO.output(pin, GPIO.HIGH)
+
+    def get_water_level(self):
+        pass
+
+    def collect_water(self):
+        self.reset()
+        GPIO.output(BOTTLE_PINS[self.selected_bottle - 1], GPIO.LOW)
+
+    def cleanup(self):
+        self.reset()
+        GPIO.cleanup()
+
 
 if __name__ == '__main__':
-    meter = rainwater()
+    meter = RainwaterMeter()
+    try:
+        meter.collect_water()
+    finally:
+        meter.cleanup()
