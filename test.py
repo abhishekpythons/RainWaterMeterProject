@@ -26,7 +26,7 @@ class WaterLevelSensor:
         self._thread.start()
 
     def _sample(self):
-        while True:
+        while True: 
             new_val = GPIO.input(SENSOR_PIN)
             now = time.time()
             with self._lock:

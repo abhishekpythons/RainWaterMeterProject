@@ -6,6 +6,9 @@ BOTTLE_PINS = [4, 17, 27, 22, 5, 6, 13]
 SENSOR_PIN = 12
 SPDT_REF = 16
 SPDT_WATER = 20
+INLET_PUMP = 23
+OUTLET_PUMP = 24
+INLET_SV = 26
 
 GPIO.setmode(GPIO.BCM)
 
@@ -45,6 +48,9 @@ class RainwaterMeter:
         self.sensor = WaterLevelSensor()
         for pin in BOTTLE_PINS:
             GPIO.setup(pin, GPIO.OUT)
+        GPIO.setup(INLET_PUMP, GPIO.OUT)
+        GPIO.setup(OUTLET_PUMP, GPIO.OUT)
+        GPIO.setup(INLET_SV, GPIO.OUT)
         self.reset()
 
     def select_bottle(self, bottle_number):
@@ -56,12 +62,17 @@ class RainwaterMeter:
     def reset(self):
         for pin in BOTTLE_PINS:
             GPIO.output(pin, GPIO.HIGH)
+        GPIO.output(INLET_PUMP, GPIO.HIGH)
+        GPIO.output(OUTLET_PUMP, GPIO.HIGH)
+            
 
     def get_water_level(self):
         return self.sensor.get_water_level()
 
     def collect_water(self):
         self.reset()
+        GPIO.output(INLET_SV, GPIO.LOW)
+        GPIO.output(INLET_PUMP, GPIO.LOW)
         GPIO.output(BOTTLE_PINS[self.selected_bottle - 1], GPIO.LOW)
 
     def cleanup(self):
@@ -69,12 +80,12 @@ class RainwaterMeter:
         GPIO.cleanup()
 
 
-if __name__ == '__main__':
-    meter = RainwaterMeter()
-    try:
-        while True:
-            meter.collect_water()
-            print(f"Water level: {meter.get_water_level():.1f}%")
-            time.sleep(1)
-    finally:
-        meter.cleanup()
+#if __name__ == '__main__':
+#    meter = RainwaterMeter()
+#    try:
+#        while True:
+#            meter.collect_water()
+#            print(f"Water level: {meter.get_water_level():.1f}%")
+#            time.sleep(1)
+#    finally:
+#        meter.cleanup()
