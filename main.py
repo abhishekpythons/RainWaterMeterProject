@@ -3,7 +3,9 @@ import time
 import threading
 
 BOTTLE_PINS = [4, 17, 27, 22, 5, 6, 13]
-SENSOR_PIN = 26
+SENSOR_PIN = 12
+SPDT_REF = 16
+SPDT_WATER = 20
 
 GPIO.setmode(GPIO.BCM)
 
